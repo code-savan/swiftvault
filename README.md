@@ -1,36 +1,187 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# OTPNaija - Virtual Phone Number Platform
 
-## Getting Started
+A complete MVP for a virtual phone number / OTP platform targeted at Nigerian users. Users can buy temporary numbers for OTP verification on global services and upgrade to "Echo" — a persistent number with SMS forwarding.
 
-First, run the development server:
+## Features
+
+- 🔐 **Authentication**: Supabase Auth with email/password
+- 💰 **Wallet System**: NGN wallet funding via Paystack
+- 📱 **One-Time OTP**: SMS-Activate API integration for disposable numbers
+- 🔔 **Echo Numbers**: Twilio persistent numbers with SMS forwarding
+- 🎁 **Referral System**: Influencer codes with discounts and commissions
+- 👨‍💼 **Admin Dashboard**: Complete management interface
+- 📊 **Real-time Updates**: Supabase realtime for live OTP delivery
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 with App Router, Tailwind CSS
+- **Backend**: Next.js Server Actions & API Routes
+- **Database**: Supabase (PostgreSQL)
+- **Auth**: Supabase Auth
+- **Payments**: Paystack (NGN)
+- **SMS Services**: SMS-Activate API & Twilio
+
+## Setup Instructions
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+
+# Paystack
+PAYSTACK_SECRET_KEY=sk_test_xxxxx
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
+
+# SMS-Activate
+SMS_ACTIVATE_API_KEY=your_sms_activate_key
+
+# Twilio
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_auth_token
+TWILIO_PHONE_NUMBER=your_twilio_number
+
+# Admin User ID (your Supabase user UUID)
+ADMIN_USER_ID=your_admin_user_uuid
+
+# App URL
+NEXT_PUBLIC_APP_URL=http://localhost:3001
+```
+
+### 3. Database Setup
+
+1. Create a new Supabase project
+2. Run the SQL schema in `supabase/schema.sql` in your Supabase SQL editor
+3. This will create all necessary tables, policies, and triggers
+
+### 4. Get Your API Keys
+
+#### Supabase
+- Go to your project settings in Supabase
+- Copy the Project URL and anon key
+- Copy the service_role key (keep this secret!)
+
+#### Paystack
+- Sign up at [paystack.com](https://paystack.com)
+- Get your test keys from Settings > API Keys & Webhooks
+- Set up webhook URL: `https://yourdomain.com/api/paystack/webhook`
+
+#### SMS-Activate
+- Sign up at [sms-activate.org](https://sms-activate.org)
+- Get your API key from your profile
+
+#### Twilio
+- Sign up at [twilio.com](https://twilio.com)
+- Get your Account SID and Auth Token from the console
+- Buy a phone number with SMS capabilities
+- Set webhook URL: `https://yourdomain.com/api/twilio/webhook`
+
+### 5. Run Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+otpapp/
+├── app/
+│   ├── (auth)/                 # Auth pages
+│   │   ├── login/
+│   │   └── register/
+│   ├── (dashboard)/            # Protected routes
+│   │   ├── dashboard/          # User dashboard
+│   │   └── admin/              # Admin pages
+│   ├── actions/                # Server actions
+│   ├── api/                    # API routes
+│   ├── components/             # React components
+│   ├── lib/                    # Utilities & integrations
+│   └── types/                  # TypeScript types
+├── supabase/
+│   └── schema.sql              # Database schema
+└── middleware.ts               # Route protection
+```
 
-## Learn More
+## Key Features Explained
 
-To learn more about Next.js, take a look at the following resources:
+### User Dashboard
+- **Wallet**: Fund via Paystack, view balance
+- **Buy OTP**: Select country/service, apply referral code, purchase number
+- **Real-time OTP**: Automatic polling for incoming codes
+- **Echo Numbers**: View persistent numbers and messages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Admin Dashboard
+- **Overview**: Revenue, users, sales statistics
+- **Influencers**: Manage referral codes and commissions
+- **Transactions**: View all platform transactions
+- **Users**: Search and manage user accounts
+- **Echo**: Monitor all active Twilio numbers
+- **Referrals**: Create new influencer codes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Referral System
+- Influencers get unique codes (e.g., JAY30)
+- Users get discount on purchases
+- Influencers earn commission on sales
+- Tracked in real-time
 
-## Deploy on Vercel
+## Admin Access
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+After creating your account:
+1. Get your user ID from Supabase Auth dashboard
+2. Add it to `.env.local` as `ADMIN_USER_ID`
+3. Restart the dev server
+4. Access `/admin` routes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Pricing Configuration
+
+Edit service prices in `app/lib/sms-activate.ts`:
+
+```typescript
+export const SERVICES = {
+  whatsapp: { code: 'wa', name: 'WhatsApp', price: 3900 },
+  amazon: { code: 'am', name: 'Amazon', price: 7000 },
+  // Add more services...
+}
+```
+
+Echo costs are configured in `app/lib/twilio.ts`.
+
+## Production Deployment
+
+### Deploy to Vercel
+
+1. Push code to GitHub
+2. Import project in Vercel
+3. Add all environment variables
+4. Deploy!
+
+### Important: Update URLs
+- Update `NEXT_PUBLIC_APP_URL` to your production domain
+- Update Paystack webhook URL in Paystack dashboard
+- Update Twilio webhook URL in Twilio console
+
+## Support
+
+For issues or questions, please refer to the documentation of:
+- [Next.js](https://nextjs.org/docs)
+- [Supabase](https://supabase.com/docs)
+- [Paystack](https://paystack.com/docs)
+- [SMS-Activate](https://sms-activate.org/en/api2)
+- [Twilio](https://www.twilio.com/docs)
+
+## License
+
+MIT License - feel free to use this for your own projects!

@@ -1,0 +1,43 @@
+So basically we are going to rebrand this business...
+
+chnage the name to sumthing more creative...
+
+update the layout.ts file metadata
+
+The services we would offer on out site would be otp (framework already exists), esim, buying of logs(social media accounts), boosting of social media accounts etc...
+
+
+now you will start by remixing the UI and content of the landing page to reflect all our services be like a modern high level fintech app landing page Ui wise...
+
+Prototype screenshots were attached...
+
+Next up is to modify the auth pages,
+auth pages should have a clean and neat structure...
+pasword inputs should have the reveal password eye at the end
+inputs should have icons too
+
+keep text small at 14px and 12px in sum scenarios...
+use poppins for body text and buttons...
+use roboto for heading text
+
+
+Then update the dashbaord routes...
+Add routes for all services we offer...
+Create the Ui/demo structure
+and make sure the dashbaord is modern and clean like the screenshots attached...
+
+
+-----------------
+
+add the notificcation modal/dropdown...
+the sidebar should have h-screen.. so move the setting, support and logout functionalities to show in a drop downmeanu from the profile icon that would be after the bell icon in the header
+
+also add the user, name and email and profile image to the drop down and remove it form the sidebar
+
+in the dashboard route, remove the view all services link/text
+
+remove the green wallet card in the dashboard... so the quick services can occupy the entire space
+
+the header shoild be the same height as the heading of the sidebar
+
+the search should work and reveal drop down links to the routes as the user is searching... drop down should be gone once the user clicks on a search options or remove all text from the search bar or clicks outside the side bar or clicks esc...
