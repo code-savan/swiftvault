@@ -1,32 +1,28 @@
-import { createClient } from '@/app/lib/supabase/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { getOrCreateUser } from '@/app/actions/auth'
 import OTPClient from './OTPClient'
 
 export default async function OTPPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { userId } = await auth()
+  if (!userId) redirect('/login')
 
-  if (!user) {
+  let userData
+  try {
+    userData = await getOrCreateUser()
+  } catch (error) {
+    console.error('Failed to load user:', error)
     redirect('/login')
   }
 
-  // Get user profile with wallet balance
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
-
-  if (!profile) {
-    redirect('/login')
-  }
+  if (!userData) redirect('/login')
 
   return (
     <OTPClient
       user={{
-        id: profile.id,
-        email: profile.email,
-        wallet_balance: profile.wallet_balance
+        id: userData.id,
+        email: userData.email,
+        wallet_balance: userData.wallet_balance || 0,
       }}
     />
   )

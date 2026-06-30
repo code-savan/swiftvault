@@ -6,7 +6,7 @@ import { Select } from './ui/select'
 import { Button } from './ui/button'
 import { Badge } from './ui/badge'
 import { toast } from 'sonner'
-import { Copy, RefreshCw, Loader2 } from 'lucide-react'
+import { Copy } from 'lucide-react'
 
 interface CountryOption {
   code: string
@@ -198,9 +198,7 @@ export function BuyOTPSection({ walletBalance, referralDiscount, onPurchaseSucce
             <div>
               <label className="text-sm font-medium mb-2 block">Country</label>
               {loadingCountries ? (
-                <div className="flex items-center justify-center py-3">
-                  <Loader2 className="w-5 h-5 animate-spin text-green-600" />
-                </div>
+                <div className="animate-pulse h-10 w-full rounded-lg bg-[var(--color-border)]" />
               ) : (
                 <Select
                   value={country}
@@ -219,9 +217,7 @@ export function BuyOTPSection({ walletBalance, referralDiscount, onPurchaseSucce
             <div>
               <label className="text-sm font-medium mb-2 block">Service</label>
               {loadingServices ? (
-                <div className="flex items-center justify-center py-3">
-                  <Loader2 className="w-5 h-5 animate-spin text-green-600" />
-                </div>
+                <div className="animate-pulse h-10 w-full rounded-lg bg-[var(--color-border)]" />
               ) : services.length === 0 ? (
                 <div className="text-sm text-gray-500 py-3 text-center">
                   No services available for this country
@@ -309,7 +305,6 @@ export function BuyOTPSection({ walletBalance, referralDiscount, onPurchaseSucce
               </div>
             ) : (
               <div className="flex items-center justify-center py-8 text-gray-500">
-                <RefreshCw className="w-5 h-5 animate-spin mr-2" />
                 <span>Waiting for OTP...</span>
               </div>
             )}

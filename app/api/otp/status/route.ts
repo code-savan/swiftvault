@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { currentUserId } from '@/app/lib/clerk/server'
+import { createDataClient } from '@/app/lib/supabase/data'
 import { getStatus, setStatus } from '@/app/lib/sms-activate'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const userId = await currentUserId()
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const supabase = createDataClient()
     const searchParams = request.nextUrl.searchParams
     const requestId = searchParams.get('id')
 
@@ -18,84 +18,54 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Request ID required' }, { status: 400 })
     }
 
-    // Get OTP request
     const { data: otpRequest } = await supabase
       .from('otp_requests')
       .select('*')
       .eq('id', requestId)
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .single()
 
     if (!otpRequest) {
       return NextResponse.json({ error: 'Request not found' }, { status: 404 })
     }
 
-    // If already received, return cached data
-    if (otpRequest.status === 'received' && otpRequest.otp) {
+    if (otpRequest.otp) {
       return NextResponse.json({
-        id: otpRequest.id,
         status: 'received',
         otp: otpRequest.otp,
-        phone_number: otpRequest.phone_number,
+        phoneNumber: otpRequest.phone_number,
       })
     }
 
-    // Check status with SMS-Activate
-    if (otpRequest.provider_number_id) {
-      const status = await getStatus(otpRequest.provider_number_id)
+    const smsStatus = await getStatus(otpRequest.provider_number_id!) as any
 
-      if (status.status === 'RECEIVED' && status.code) {
-        // Update database
-        await supabase
-          .from('otp_requests')
-          .update({
-            status: 'received',
-            otp: status.code,
-          })
-          .eq('id', requestId)
+    if (smsStatus.status === 'success' && smsStatus.otp) {
+      await supabase
+        .from('otp_requests')
+        .update({ status: 'received', otp: smsStatus.otp })
+        .eq('id', requestId)
 
-        // Mark as completed with SMS-Activate
-        await setStatus(otpRequest.provider_number_id, 'COMPLETED')
-
-        return NextResponse.json({
-          id: otpRequest.id,
-          status: 'received',
-          otp: status.code,
-          phone_number: otpRequest.phone_number,
-        })
-      }
-
-      // Check for timeout (5 minutes)
-      const createdAt = new Date(otpRequest.created_at)
-      const now = new Date()
-      const diffMinutes = (now.getTime() - createdAt.getTime()) / (1000 * 60)
-
-      if (diffMinutes > 5) {
-        await supabase
-          .from('otp_requests')
-          .update({ status: 'timeout' })
-          .eq('id', requestId)
-
-        await setStatus(otpRequest.provider_number_id, 'CANCELLED')
-
-        return NextResponse.json({
-          id: otpRequest.id,
-          status: 'timeout',
-          phone_number: otpRequest.phone_number,
-        })
-      }
+      return NextResponse.json({
+        status: 'received',
+        otp: smsStatus.otp,
+        phoneNumber: otpRequest.phone_number,
+      })
     }
 
-    return NextResponse.json({
-      id: otpRequest.id,
-      status: otpRequest.status,
-      phone_number: otpRequest.phone_number,
-    })
+    if (smsStatus.status === 'canceled' || smsStatus.status === 'expired') {
+      await supabase
+        .from('otp_requests')
+        .update({ status: 'failed' })
+        .eq('id', requestId)
+
+      await setStatus(otpRequest.provider_number_id!, 'cancel' as any)
+
+      return NextResponse.json({ status: 'failed' })
+    }
+
+    return NextResponse.json({ status: 'pending' })
   } catch (error: any) {
-    console.error('Status check error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to check status' },
-      { status: 500 }
-    )
+    console.error('OTP status error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

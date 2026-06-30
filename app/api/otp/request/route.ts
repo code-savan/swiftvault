@@ -1,98 +1,102 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
-import { getNumber } from '@/app/lib/sms-activate'
-import { validateReferralCode, applyReferralCommission } from '@/app/actions/referral'
-import { deductWallet } from '@/app/actions/wallet'
+import { currentUserId } from '@/app/lib/clerk/server'
+import { createDataClient } from '@/app/lib/supabase/data'
+import { getNumber, getFormattedServices } from '@/app/lib/sms-activate'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const userId = await currentUserId()
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const supabase = createDataClient()
     const body = await request.json()
-    const { country, service, price, serviceName, countryName, referralCode } = body
+    const { country, service, serviceName, countryName, referralCode } = body
 
-    if (!country || !service || !price) {
+    if (!country || !service) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
-    // Calculate price with discount
-    let basePrice = price
+    // Server-side price recalculation — never trust client price
+    const formattedServices = await getFormattedServices(country)
+    const matched = formattedServices.find((s) => s.code === service)
+    if (!matched) {
+      return NextResponse.json({ error: 'Invalid service for this country' }, { status: 400 })
+    }
+    let basePrice = matched.price
     let discount = 0
-    let referralData = null
+    let referralData: any = null
 
     if (referralCode) {
-      referralData = await validateReferralCode(referralCode)
-      if (referralData.valid) {
-        discount = (basePrice * referralData.discount_percent) / 100
+      const { data: refCode } = await supabase
+        .from('referral_codes')
+        .select('*')
+        .eq('code', referralCode.toUpperCase())
+        .eq('active', true)
+        .single()
+
+      if (refCode) {
+        referralData = refCode
+        discount = Math.round((basePrice * refCode.discount_percent) / 100)
+        basePrice = basePrice - discount
       }
     }
 
-    const finalPrice = basePrice - discount
+    const result = await getNumber(country, service)
 
-    // Check wallet balance
-    const { data: userData } = await supabase
-      .from('users')
-      .select('wallet_balance')
-      .eq('id', user.id)
-      .single()
-
-    const balance = userData?.wallet_balance || 0
-
-    if (balance < finalPrice) {
-      return NextResponse.json({ error: 'Insufficient wallet balance' }, { status: 400 })
+    if (!result.phoneNumber) {
+      return NextResponse.json({ error: 'Failed to get number' }, { status: 500 })
     }
 
-    // Request number from SMS-Activate
-    const numberData = await getNumber(country, service)
+    // Atomic wallet deduction + transaction insert
+    const { data: walletResult } = await supabase.rpc('deduct_wallet', {
+      p_user_id: userId,
+      p_amount: basePrice,
+      p_description: `${serviceName || service} OTP - ${countryName || country} (${result.phoneNumber})`,
+      p_referral_code_id: referralData?.id || null,
+    })
 
-    // Deduct from wallet
-    await deductWallet(
-      user.id,
-      finalPrice,
-      `${serviceName || service} OTP - ${countryName || country}`,
-      referralData?.referral_code_id
-    )
+    const walletData = walletResult as unknown as { success: boolean; error?: string }
+    if (!walletData?.success) {
+      return NextResponse.json({ error: walletData?.error || 'Payment failed' }, { status: 400 })
+    }
 
-    // Create OTP request record
     const { data: otpRequest } = await supabase
       .from('otp_requests')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         country_code: country,
         service,
-        provider_number_id: numberData.activationId,
-        phone_number: numberData.phoneNumber,
+        phone_number: result.phoneNumber,
+        provider_number_id: result.activationId.toString(),
         status: 'pending',
-        amount_paid: finalPrice,
-        referral_code_id: referralData?.referral_code_id,
+        amount_paid: basePrice,
+        referral_code_id: referralData?.id || null,
       })
       .select()
       .single()
 
-    // Apply referral commission if applicable
-    if (referralData?.valid && referralData.influencer_id) {
-      const commission = (finalPrice * referralData.commission_percent) / 100
-      await applyReferralCommission(
-        referralData.influencer_id,
-        commission,
-        referralData.referral_code_id
-      )
+    // Referral commission via atomic RPC
+    if (referralData && otpRequest) {
+      const commission = Math.round((basePrice * referralData.commission_percent) / 100)
+      await supabase.rpc('transfer_commission', {
+        p_influencer_id: referralData.influencer_id,
+        p_amount: commission,
+        p_referral_code_id: referralData.id,
+        p_description: `Commission from ${serviceName || service} OTP`,
+      })
     }
 
     return NextResponse.json({
       success: true,
-      request: otpRequest,
+      id: otpRequest?.id,
+      phoneNumber: result.phoneNumber,
+      amountCharged: basePrice,
+      discount,
     })
   } catch (error: any) {
     console.error('OTP request error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to request OTP number' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

@@ -1,66 +1,103 @@
 'use client'
 
+import React from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useI18n } from '@/app/contexts/I18nContext'
+import { getAvatarUrl } from '@/app/lib/avatar'
 import {
-  Home, Phone, Signal, Users, Rocket, Wallet, History,
-  Settings, HelpCircle, LogOut, Zap, ChevronRight, X
+  LayoutDashboard, Phone, Signal, Users, Rocket, Wallet, History,
+  Settings, HelpCircle, LogOut, Zap, X, Gift,
 } from 'lucide-react'
 
 interface SidebarProps {
   user: {
+    id: string
     email: string
+    wallet_balance: number
+    full_name: string | null
+    phone_number: string | null
+    username: string | null
+    avatar_url: string | null
   }
   onLogout: () => void
   isOpen: boolean
   onClose: () => void
 }
 
-const mainNavItems = [
-  { name: 'Home', href: '/dashboard', icon: Home },
-  { name: 'OTP Numbers', href: '/dashboard/otp', icon: Phone },
-  { name: 'eSIM Plans', href: '/dashboard/esim', icon: Signal },
-  { name: 'Social Logs', href: '/dashboard/logs', icon: Users },
-  { name: 'Boosting', href: '/dashboard/boosting', icon: Rocket },
+interface NavItem {
+  key: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+}
+
+const mainLinks: NavItem[] = [
+  { key: 'nav.overview', href: '/dashboard', icon: LayoutDashboard },
+  { key: 'nav.otpNumbers', href: '/dashboard/otp', icon: Phone },
+  { key: 'nav.esimPlans', href: '/dashboard/esim', icon: Signal },
+  { key: 'nav.socialLogs', href: '/dashboard/logs', icon: Users },
+  { key: 'nav.boosting', href: '/dashboard/boosting', icon: Rocket },
+  { key: 'nav.referral', href: '/dashboard/referral', icon: Gift },
 ]
 
-const secondaryNavItems = [
-  { name: 'Transactions', href: '/dashboard/transactions', icon: History },
-  { name: 'Wallet', href: '/dashboard/wallet', icon: Wallet },
+const financialLinks: NavItem[] = [
+  { key: 'nav.transactions', href: '/dashboard/transactions', icon: History },
+  { key: 'nav.wallet', href: '/dashboard/wallet', icon: Wallet },
 ]
 
-const bottomNavItems = [
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-  { name: 'Support', href: '/dashboard/support', icon: HelpCircle },
+const otherLinks: NavItem[] = [
+  { key: 'nav.settings', href: '/dashboard/settings', icon: Settings },
+  { key: 'nav.support', href: '/dashboard/support', icon: HelpCircle },
 ]
+
+function NavSection({ label, items, pathname, onClose, t }: {
+  label: string
+  items: NavItem[]
+  pathname: string
+  onClose: () => void
+  t: (key: string) => string
+}) {
+  return (
+    <div className="mb-6">
+      <p className="px-3 mb-2 text-xs font-medium uppercase tracking-[0.12em] text-[var(--color-text-muted)]">
+        {label}
+      </p>
+      <div className="space-y-0.5">
+        {items.map((item) => {
+          const isActive = pathname === item.href ||
+            (item.href !== '/dashboard' && pathname.startsWith(item.href))
+          const Icon = item.icon
+
+          return (
+            <Link
+              key={item.key}
+              href={item.href}
+              onClick={onClose}
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+                isActive
+                  ? 'text-[var(--color-accent)] bg-[var(--color-accent-light)] border-l-[3px] border-[var(--color-accent)] pl-[calc(0.75rem-3px)]'
+                  : 'text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)] border-l-[3px] border-transparent'
+              }`}
+            >
+              <Icon className="w-[18px] h-[18px] flex-shrink-0" />
+              <span>{t(item.key)}</span>
+            </Link>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
 
 export function Sidebar({ user, onLogout, isOpen, onClose }: SidebarProps) {
   const pathname = usePathname()
+  const { t } = useI18n()
 
-  const NavItem = ({ item }: { item: typeof mainNavItems[0] }) => {
-    const isActive = pathname === item.href
-    const Icon = item.icon
-
-    return (
-      <Link
-        href={item.href}
-        onClick={onClose}
-        className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-          isActive
-            ? 'bg-gray-900 text-white'
-            : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-        }`}
-      >
-        <Icon className="w-5 h-5" />
-        <span>{item.name}</span>
-        {isActive && <ChevronRight className="w-4 h-4 ml-auto" />}
-      </Link>
-    )
-  }
+  const displayName = user.full_name || user.username || user.email.split('@')[0]
+  const avatarSrc = getAvatarUrl(user.email, user.avatar_url)
 
   return (
     <>
-      {/* Mobile Overlay */}
       {isOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -68,95 +105,59 @@ export function Sidebar({ user, onLogout, isOpen, onClose }: SidebarProps) {
         />
       )}
 
-      {/* Sidebar */}
       <aside className={`
-        fixed top-0 left-0 h-full w-72 bg-white border-r border-gray-200 z-50
+        fixed top-0 left-0 h-screen w-[240px] bg-[var(--color-surface)] border-r border-[var(--color-border)] z-50
+        flex flex-col
         transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:z-auto
+        lg:translate-x-0
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
       `}>
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gray-900 rounded-xl flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-lg font-bold text-gray-900">SwiftVault</span>
+        {/* Logo (no border below) */}
+        <div className="flex-shrink-0 px-5 pt-5 pb-3">
+          <div className="flex items-center justify-between">
+            <Link href="/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
+              <div className="w-8 h-8 bg-[var(--color-accent)] rounded-lg flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white" />
               </div>
-              <button onClick={onClose} className="lg:hidden p-2 hover:bg-gray-100 rounded-lg">
-                <X className="w-5 h-5 text-gray-500" />
-              </button>
-            </div>
-          </div>
-
-          {/* User Info */}
-          <div className="px-4 py-4 border-b border-gray-100">
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-              <div className="w-10 h-10 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold">
-                {user.email.charAt(0).toUpperCase()}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
-                  {user.email.split('@')[0]}
-                </p>
-                <p className="text-xs text-gray-500 truncate">{user.email}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Main Navigation */}
-          <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
-            <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-              Services
-            </p>
-            {mainNavItems.map((item) => (
-              <NavItem key={item.name} item={item} />
-            ))}
-
-            <div className="pt-6">
-              <p className="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-                Account
-              </p>
-              {secondaryNavItems.map((item) => (
-                <NavItem key={item.name} item={item} />
-              ))}
-            </div>
-          </nav>
-
-          {/* Storage Indicator */}
-          <div className="px-4 py-4 border-t border-gray-100">
-            <div className="p-4 bg-gray-900 rounded-2xl text-white">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-medium">Wallet Balance</span>
-                <ChevronRight className="w-4 h-4 opacity-60" />
-              </div>
-              <div className="w-full bg-gray-700 rounded-full h-1.5 mb-2">
-                <div className="bg-green-400 h-1.5 rounded-full" style={{ width: '75%' }}></div>
-              </div>
-              <p className="text-xs text-gray-400">₦12,500 available</p>
-              <Link href="/dashboard/wallet">
-                <button className="w-full mt-3 py-2.5 bg-white text-gray-900 rounded-xl text-xs font-semibold hover:bg-gray-100 transition-colors">
-                  Fund Wallet
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          {/* Bottom Navigation */}
-          <div className="px-4 py-4 border-t border-gray-100 space-y-1">
-            {bottomNavItems.map((item) => (
-              <NavItem key={item.name} item={item} />
-            ))}
-            <button
-              onClick={onLogout}
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Log Out</span>
+              <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVault</span>
+            </Link>
+            <button onClick={onClose} className="lg:hidden p-1.5 hover:bg-[var(--color-surface-hover)] rounded-lg">
+              <X className="w-4 h-4 text-[var(--color-text-muted)]" />
             </button>
           </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 overflow-y-auto px-4 pt-5 pb-2">
+          <NavSection label="Main" items={mainLinks} pathname={pathname} onClose={onClose} t={t} />
+          <NavSection label="Financial" items={financialLinks} pathname={pathname} onClose={onClose} t={t} />
+          <NavSection label="More" items={otherLinks} pathname={pathname} onClose={onClose} t={t} />
+        </nav>
+
+        {/* User at bottom with clear logout */}
+        <div className="flex-shrink-0 border-t border-[var(--color-border)] px-4 pt-3 pb-4">
+          <div className="flex items-center gap-3 mb-3">
+            <img
+              src={avatarSrc}
+              alt=""
+              className="w-9 h-9 rounded-full bg-gray-100 flex-shrink-0"
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-[var(--color-text-primary)] truncate">
+                {displayName}
+              </p>
+              {user.username && (
+                <p className="text-xs text-[var(--color-text-muted)] truncate">@{user.username}</p>
+              )}
+            </div>
+          </div>
+          <button
+            onClick={onLogout}
+            className="flex items-center gap-2.5 w-full px-3 py-2 rounded-lg text-sm font-medium text-white bg-[var(--color-danger)] hover:bg-red-700 transition-colors"
+          >
+            <LogOut className="w-[18px] h-[18px]" />
+            {t('nav.logout')}
+          </button>
         </div>
       </aside>
     </>

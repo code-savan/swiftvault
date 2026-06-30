@@ -1,5 +1,8 @@
+'use client'
+
 import * as React from "react"
 import { cn } from "@/app/lib/utils"
+import { X } from 'lucide-react'
 
 interface DialogProps {
   open: boolean
@@ -8,27 +11,47 @@ interface DialogProps {
 }
 
 const Dialog: React.FC<DialogProps> = ({ open, onOpenChange, children }) => {
-  if (!open) return null
+  const [visible, setVisible] = React.useState(false)
+
+  React.useEffect(() => {
+    if (open) {
+      requestAnimationFrame(() => setVisible(true))
+    } else {
+      setVisible(false)
+    }
+  }, [open])
+
+  if (!open && !visible) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div
+      className={cn(
+        "fixed inset-0 z-50 flex items-center justify-center transition-all duration-200 ease-out",
+        open ? 'bg-black/50' : 'bg-black/0 pointer-events-none'
+      )}
+      onClick={() => onOpenChange(false)}
+    >
       <div
-        className="fixed inset-0 bg-black/50"
-        onClick={() => onOpenChange(false)}
-      />
-      <div className="relative z-50">{children}</div>
+        className={cn(
+          "relative z-50 transition-all duration-200 ease-out",
+          open ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
+        )}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {children}
+      </div>
     </div>
   )
 }
 
 const DialogContent = React.forwardRef<
   HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, children, ...props }, ref) => (
+  React.HTMLAttributes<HTMLDivElement> & { showClose?: boolean }
+>(({ className, children, showClose = true, ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "relative bg-white rounded-lg shadow-lg p-6 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto",
+      "relative bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto",
       className
     )}
     {...props}
@@ -43,7 +66,7 @@ const DialogHeader = ({
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
   <div
-    className={cn("flex flex-col space-y-1.5 text-center sm:text-left mb-4", className)}
+    className={cn("flex flex-col space-y-1.5 text-left mb-4", className)}
     {...props}
   />
 )
@@ -55,7 +78,7 @@ const DialogTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h2
     ref={ref}
-    className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+    className={cn("text-lg font-semibold leading-none tracking-tight text-[var(--color-text-primary)]", className)}
     {...props}
   />
 ))
@@ -67,7 +90,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-gray-500", className)}
+    className={cn("text-sm text-[var(--color-text-muted)]", className)}
     {...props}
   />
 ))

@@ -58,21 +58,21 @@ npm install
 2. Add webhook URL: `https://yourdomain.com/api/paystack/webhook`
 3. Select events: `charge.success`
 
-## Step 4: Set Up SMS-Activate
+## Step 4: Set Up VirtualSMS (formerly SMS-Activate)
 
 ### 4.1 Create Account
-1. Go to [sms-activate.org](https://sms-activate.org)
+1. Go to [virtualsms.de](https://virtualsms.de)
 2. Register and verify email
-3. Add funds to your account (minimum $1)
+3. Add funds to your account
 
 ### 4.2 Get API Key
-1. Go to Profile > API
-2. Copy your API key → `SMS_ACTIVATE_API_KEY`
+1. Go to your profile
+2. Copy your API key → `VIRTUAL_SMS_API_KEY`
 
 ### 4.3 Test API
 You can test in browser:
 ```
-https://api.sms-activate.org/stubs/handler_api.php?api_key=YOUR_KEY&action=getBalance
+https://api.virtualsms.de/stubs/handler_api?api_key=YOUR_KEY&action=getBalance
 ```
 
 ## Step 5: Set Up Twilio
@@ -114,8 +114,8 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 PAYSTACK_SECRET_KEY=sk_test_xxxxxxxxxxxxx
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxxxxxxxxxxxx
 
-# SMS-Activate
-SMS_ACTIVATE_API_KEY=xxxxxxxxxxxxxxxxxxxxx
+# VirtualSMS
+VIRTUAL_SMS_API_KEY=xxxxxxxxxxxxxxxxxxxxx
 
 # Twilio
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxx

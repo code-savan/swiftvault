@@ -1,22 +1,24 @@
 -- Supabase Schema for OTP Platform
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- Users table (extends Supabase auth.users)
+-- Users table (Clerk user IDs stored as TEXT, format: user_2abc123)
 CREATE TABLE public.users (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    id TEXT PRIMARY KEY,
     email TEXT NOT NULL,
     wallet_balance DECIMAL(10, 2) DEFAULT 0.00,
-    referred_by UUID REFERENCES public.users(id),
+    full_name TEXT,
+    phone_number TEXT,
+    username TEXT UNIQUE,
+    preferences JSONB DEFAULT '{}'::jsonb,
+    referred_by TEXT REFERENCES public.users(id),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Referral codes table
 CREATE TABLE public.referral_codes (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     code TEXT UNIQUE NOT NULL,
-    influencer_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    influencer_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     discount_percent INTEGER NOT NULL DEFAULT 0,
     commission_percent INTEGER NOT NULL DEFAULT 0,
     active BOOLEAN DEFAULT TRUE,
@@ -25,8 +27,8 @@ CREATE TABLE public.referral_codes (
 
 -- Transactions table
 CREATE TABLE public.transactions (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     amount DECIMAL(10, 2) NOT NULL,
     type TEXT NOT NULL CHECK (type IN ('topup', 'purchase', 'commission', 'refund')),
     description TEXT,
@@ -38,8 +40,8 @@ CREATE TABLE public.transactions (
 
 -- OTP requests table
 CREATE TABLE public.otp_requests (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     country_code TEXT NOT NULL,
     service TEXT NOT NULL,
     provider_number_id TEXT,
@@ -54,8 +56,8 @@ CREATE TABLE public.otp_requests (
 
 -- Echo numbers table
 CREATE TABLE public.echo_numbers (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES public.users(id) ON DELETE CASCADE,
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id TEXT REFERENCES public.users(id) ON DELETE CASCADE,
     twilio_sid TEXT NOT NULL,
     phone_number TEXT NOT NULL,
     country TEXT NOT NULL,
@@ -94,25 +96,25 @@ ALTER TABLE public.echo_messages ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for users
 CREATE POLICY "Users can view own data" ON public.users
-    FOR SELECT USING (auth.uid() = id);
+    FOR SELECT USING (auth.jwt() ->> 'sub' = id);
 
 CREATE POLICY "Users can update own data" ON public.users
-    FOR UPDATE USING (auth.uid() = id);
+    FOR UPDATE USING (auth.jwt() ->> 'sub' = id);
 
 -- RLS Policies for transactions
 CREATE POLICY "Users can view own transactions" ON public.transactions
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.jwt() ->> 'sub' = user_id);
 
 -- RLS Policies for otp_requests
 CREATE POLICY "Users can view own OTP requests" ON public.otp_requests
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.jwt() ->> 'sub' = user_id);
 
 CREATE POLICY "Users can insert own OTP requests" ON public.otp_requests
-    FOR INSERT WITH CHECK (auth.uid() = user_id);
+    FOR INSERT WITH CHECK (auth.jwt() ->> 'sub' = user_id);
 
 -- RLS Policies for echo_numbers
 CREATE POLICY "Users can view own echo numbers" ON public.echo_numbers
-    FOR SELECT USING (auth.uid() = user_id);
+    FOR SELECT USING (auth.jwt() ->> 'sub' = user_id);
 
 -- RLS Policies for echo_messages
 CREATE POLICY "Users can view messages for their echo numbers" ON public.echo_messages
@@ -120,7 +122,7 @@ CREATE POLICY "Users can view messages for their echo numbers" ON public.echo_me
         EXISTS (
             SELECT 1 FROM public.echo_numbers
             WHERE echo_numbers.id = echo_messages.echo_number_id
-            AND echo_numbers.user_id = auth.uid()
+            AND echo_numbers.user_id = auth.jwt() ->> 'sub'
         )
     );
 
@@ -147,17 +149,5 @@ CREATE TRIGGER update_otp_requests_updated_at BEFORE UPDATE ON public.otp_reques
 CREATE TRIGGER update_echo_numbers_updated_at BEFORE UPDATE ON public.echo_numbers
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Function to create user profile on signup
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
-BEGIN
-    INSERT INTO public.users (id, email)
-    VALUES (NEW.id, NEW.email);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Trigger to create user profile
-CREATE TRIGGER on_auth_user_created
-    AFTER INSERT ON auth.users
-    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+-- NOTE: User profiles are created via Clerk webhook (/api/webhooks/clerk)
+-- The old auth.users trigger has been removed since we use Clerk for auth.

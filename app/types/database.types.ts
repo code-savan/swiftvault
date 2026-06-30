@@ -14,6 +14,10 @@ export interface Database {
           id: string
           email: string
           wallet_balance: number
+          full_name: string | null
+          phone_number: string | null
+          username: string | null
+          preferences: Json
           referred_by: string | null
           created_at: string
           updated_at: string
@@ -22,6 +26,10 @@ export interface Database {
           id: string
           email: string
           wallet_balance?: number
+          full_name?: string | null
+          phone_number?: string | null
+          username?: string | null
+          preferences?: Json
           referred_by?: string | null
           created_at?: string
           updated_at?: string
@@ -30,6 +38,10 @@ export interface Database {
           id?: string
           email?: string
           wallet_balance?: number
+          full_name?: string | null
+          phone_number?: string | null
+          username?: string | null
+          preferences?: Json
           referred_by?: string | null
           created_at?: string
           updated_at?: string

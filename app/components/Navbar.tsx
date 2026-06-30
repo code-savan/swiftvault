@@ -22,7 +22,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-green-600">OTPNaija</span>
+              <span className="text-2xl font-bold text-green-600">SwiftVault</span>
             </Link>
             {isAdmin && (
               <div className="ml-10 flex items-baseline space-x-4">
@@ -55,6 +55,26 @@ export function Navbar({ user, onLogout }: NavbarProps) {
                   }`}
                 >
                   Transactions
+                </Link>
+                <Link
+                  href="/admin/boosting"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === '/admin/boosting'
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  Boosting
+                </Link>
+                <Link
+                  href="/admin/otp"
+                  className={`px-3 py-2 rounded-md text-sm font-medium ${
+                    pathname === '/admin/otp'
+                      ? 'bg-green-100 text-green-700'
+                      : 'text-gray-700 hover:bg-gray-100'
+                  }`}
+                >
+                  OTP
                 </Link>
                 <Link
                   href="/admin/users"

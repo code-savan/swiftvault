@@ -1,10 +1,10 @@
 import axios from 'axios'
+import { supabase } from './supabase'
+import { getUSDNGN } from './rates'
+import { getPricingTiers, calculatePrice } from './otp-pricing'
 
-const SMS_ACTIVATE_API_KEY = process.env.SMS_ACTIVATE_API_KEY!
-const SMS_ACTIVATE_BASE_URL = 'https://api.sms-activate.org/stubs/handler_api.php'
-
-// Exchange rate: 1 USD = 1600 NGN (approximate)
-const USD_TO_NGN = 1600
+const VIRTUAL_SMS_API_KEY = process.env.VIRTUAL_SMS_API_KEY!
+const SMS_ACTIVATE_BASE_URL = 'https://api.virtualsms.de/stubs/handler_api'
 
 export interface Country {
   id: number
@@ -56,7 +56,7 @@ export async function getCountries(): Promise<Record<string, Country>> {
   try {
     const response = await axios.get(SMS_ACTIVATE_BASE_URL, {
       params: {
-        api_key: SMS_ACTIVATE_API_KEY,
+        api_key: VIRTUAL_SMS_API_KEY,
         action: 'getCountries',
       },
     })
@@ -77,16 +77,23 @@ export async function getCountries(): Promise<Record<string, Country>> {
 // Get available services from SMS-Activate
 export async function getServices(): Promise<Record<string, string>> {
   try {
-    const response = await axios.get('https://api.sms-activate.org/stubs/handler_api.php', {
+    const response = await axios.get(SMS_ACTIVATE_BASE_URL, {
       params: {
-        api_key: SMS_ACTIVATE_API_KEY,
-        action: 'getServices',
+        api_key: VIRTUAL_SMS_API_KEY,
+        action: 'getServicesList',
       },
     })
-    return response.data
+    const data = response.data
+    if (data.status === 'success' && Array.isArray(data.services)) {
+      const result: Record<string, string> = {}
+      for (const s of data.services) {
+        result[s.code] = s.name
+      }
+      return result
+    }
+    return {}
   } catch (error: any) {
     console.error('Failed to fetch services:', error.message)
-    // Return fallback services
     return {
       wa: 'WhatsApp',
       go: 'Google',
@@ -104,7 +111,7 @@ export async function getServices(): Promise<Record<string, string>> {
 export async function getPrices(country?: string): Promise<Record<string, Record<string, any>>> {
   try {
     const params: any = {
-      api_key: SMS_ACTIVATE_API_KEY,
+      api_key: VIRTUAL_SMS_API_KEY,
       action: 'getPrices',
     }
 
@@ -124,7 +131,7 @@ export async function getPrices(country?: string): Promise<Record<string, Record
 export async function getNumbersStatus(country?: string): Promise<Record<string, any>> {
   try {
     const params: any = {
-      api_key: SMS_ACTIVATE_API_KEY,
+      api_key: VIRTUAL_SMS_API_KEY,
       action: 'getNumbersStatus',
     }
 
@@ -145,8 +152,8 @@ export async function getFormattedCountries(): Promise<CountryOption[]> {
   const countries = await getCountries()
   return Object.entries(countries)
     .filter(([_, country]) => country.visible)
-    .map(([code, country]) => ({
-      code,
+    .map(([_, country]) => ({
+      code: String(country.id),
       name: country.eng,
     }))
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -154,29 +161,40 @@ export async function getFormattedCountries(): Promise<CountryOption[]> {
 
 // Helper function to format services with prices for a specific country
 export async function getFormattedServices(countryCode: string): Promise<ServiceOption[]> {
-  const [services, prices, status] = await Promise.all([
+  const [services, prices, rate, tiers, dbRes] = await Promise.all([
     getServices(),
     getPrices(countryCode),
-    getNumbersStatus(countryCode),
+    getUSDNGN(),
+    getPricingTiers(),
+    supabase.from('otp_services').select('code, visible, custom_price'),
   ])
 
   const countryPrices = prices[countryCode] || {}
-  const countryStatus = status[countryCode] || {}
+  const dbMap = new Map((dbRes.data || []).map(s => [s.code, s]))
 
   return Object.entries(services)
+    .filter(([code]) => {
+      const db = dbMap.get(code)
+      return db?.visible !== false
+    })
     .map(([code, name]) => {
       const serviceData = countryPrices[code] || {}
-      const cost = serviceData.cost || 0
-      const count = countryStatus[code]?.count || 0
+      const cost = parseFloat(serviceData.cost || 0)
+      const count = parseInt(serviceData.count || 0, 10)
+      const db = dbMap.get(code)
+
+      const price = db?.custom_price != null
+        ? Number(db.custom_price)
+        : calculatePrice(cost, code, tiers, rate)
 
       return {
         code,
         name: typeof name === 'string' ? name : code,
-        price: Math.ceil(cost * USD_TO_NGN), // Convert USD to NGN
+        price,
         available: count > 0,
       }
     })
-    .filter(service => service.price > 0) // Only show services with prices
+    .filter(service => service.price > 0 && service.available)
     .sort((a, b) => a.name.localeCompare(b.name))
 }
 
@@ -187,7 +205,7 @@ export async function getNumber(
   try {
     const response = await axios.get(SMS_ACTIVATE_BASE_URL, {
       params: {
-        api_key: SMS_ACTIVATE_API_KEY,
+        api_key: VIRTUAL_SMS_API_KEY,
         action: 'getNumber',
         service,
         country,
@@ -214,7 +232,7 @@ export async function getStatus(activationId: string): Promise<GetStatusResponse
   try {
     const response = await axios.get(SMS_ACTIVATE_BASE_URL, {
       params: {
-        api_key: SMS_ACTIVATE_API_KEY,
+        api_key: VIRTUAL_SMS_API_KEY,
         action: 'getStatus',
         id: activationId,
       },
@@ -250,7 +268,7 @@ export async function setStatus(
   try {
     await axios.get(SMS_ACTIVATE_BASE_URL, {
       params: {
-        api_key: SMS_ACTIVATE_API_KEY,
+        api_key: VIRTUAL_SMS_API_KEY,
         action: 'setStatus',
         id: activationId,
         status: status === 'COMPLETED' ? 6 : 8,

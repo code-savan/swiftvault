@@ -1,20 +1,16 @@
 'use server'
 
-import { createClient } from '@/app/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAuth, getDataClient } from '@/app/lib/clerk/server'
 
 export async function getOTPRequests(limit: number = 10) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { requests: [] }
-  }
+  const userId = await requireAuth()
+  const supabase = getDataClient()
 
   const { data, error } = await supabase
     .from('otp_requests')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -27,17 +23,13 @@ export async function getOTPRequests(limit: number = 10) {
 }
 
 export async function getEchoNumbers() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { numbers: [] }
-  }
+  const userId = await requireAuth()
+  const supabase = getDataClient()
 
   const { data: numbers } = await supabase
     .from('echo_numbers')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .eq('active', true)
     .order('created_at', { ascending: false })
 
@@ -45,7 +37,6 @@ export async function getEchoNumbers() {
     return { numbers: [] }
   }
 
-  // Get messages for each number
   const numbersWithMessages = await Promise.all(
     numbers.map(async (number) => {
       const { data: messages } = await supabase
@@ -66,30 +57,24 @@ export async function getEchoNumbers() {
 }
 
 export async function renewEchoNumber(numberId: string) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const userId = await requireAuth()
+  const supabase = getDataClient()
 
-  if (!user) {
-    return { success: false, error: 'Unauthorized' }
-  }
-
-  // Get number details
   const { data: number } = await supabase
     .from('echo_numbers')
     .select('*')
     .eq('id', numberId)
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .single()
 
   if (!number) {
     return { success: false, error: 'Number not found' }
   }
 
-  // Check wallet balance
   const { data: userData } = await supabase
     .from('users')
     .select('wallet_balance')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   const balance = userData?.wallet_balance || 0
@@ -98,14 +83,12 @@ export async function renewEchoNumber(numberId: string) {
     return { success: false, error: 'Insufficient balance' }
   }
 
-  // Deduct from wallet
   const newBalance = balance - number.monthly_cost
   await supabase
     .from('users')
     .update({ wallet_balance: newBalance })
-    .eq('id', user.id)
+    .eq('id', userId)
 
-  // Extend expiry by 30 days
   const currentExpiry = new Date(number.expiry_date)
   const newExpiry = new Date(currentExpiry.getTime() + 30 * 24 * 60 * 60 * 1000)
 
@@ -117,11 +100,10 @@ export async function renewEchoNumber(numberId: string) {
     })
     .eq('id', numberId)
 
-  // Create transaction
   await supabase
     .from('transactions')
     .insert({
-      user_id: user.id,
+      user_id: userId,
       amount: -number.monthly_cost,
       type: 'purchase',
       description: `Echo number renewal: ${number.phone_number}`,

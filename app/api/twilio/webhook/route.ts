@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminClient } from '@/app/lib/supabase/server'
+import { createDataClient } from '@/app/lib/supabase/data'
 
 export async function POST(request: NextRequest) {
   try {
@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid webhook data' }, { status: 400 })
     }
 
-    const supabase = await createAdminClient()
+    const supabase = createDataClient()
 
     // Find Echo number
     const { data: echoNumber } = await supabase

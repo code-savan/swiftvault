@@ -6,7 +6,7 @@ A complete MVP for a virtual phone number / OTP platform targeted at Nigerian us
 
 - 🔐 **Authentication**: Supabase Auth with email/password
 - 💰 **Wallet System**: NGN wallet funding via Paystack
-- 📱 **One-Time OTP**: SMS-Activate API integration for disposable numbers
+- 📱 **One-Time OTP**: VirtualSMS API integration for disposable numbers
 - 🔔 **Echo Numbers**: Twilio persistent numbers with SMS forwarding
 - 🎁 **Referral System**: Influencer codes with discounts and commissions
 - 👨‍💼 **Admin Dashboard**: Complete management interface
@@ -19,7 +19,7 @@ A complete MVP for a virtual phone number / OTP platform targeted at Nigerian us
 - **Database**: Supabase (PostgreSQL)
 - **Auth**: Supabase Auth
 - **Payments**: Paystack (NGN)
-- **SMS Services**: SMS-Activate API & Twilio
+- **SMS Services**: VirtualSMS API & Twilio
 
 ## Setup Instructions
 
@@ -43,8 +43,8 @@ SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 PAYSTACK_SECRET_KEY=sk_test_xxxxx
 NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_xxxxx
 
-# SMS-Activate
-SMS_ACTIVATE_API_KEY=your_sms_activate_key
+# VirtualSMS
+VIRTUAL_SMS_API_KEY=your_virtualsms_api_key
 
 # Twilio
 TWILIO_ACCOUNT_SID=your_twilio_sid
@@ -76,8 +76,8 @@ NEXT_PUBLIC_APP_URL=http://localhost:3001
 - Get your test keys from Settings > API Keys & Webhooks
 - Set up webhook URL: `https://yourdomain.com/api/paystack/webhook`
 
-#### SMS-Activate
-- Sign up at [sms-activate.org](https://sms-activate.org)
+#### VirtualSMS
+- Sign up at [virtualsms.de](https://virtualsms.de)
 - Get your API key from your profile
 
 #### Twilio
@@ -147,7 +147,7 @@ After creating your account:
 
 ## Pricing Configuration
 
-Edit service prices in `app/lib/sms-activate.ts`:
+Edit service prices in `app/lib/virtualsms.ts`:
 
 ```typescript
 export const SERVICES = {
@@ -179,7 +179,7 @@ For issues or questions, please refer to the documentation of:
 - [Next.js](https://nextjs.org/docs)
 - [Supabase](https://supabase.com/docs)
 - [Paystack](https://paystack.com/docs)
-- [SMS-Activate](https://sms-activate.org/en/api2)
+- [VirtualSMS](https://virtualsms.de)
 - [Twilio](https://www.twilio.com/docs)
 
 ## License

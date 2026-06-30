@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/card'
+import { Card, CardContent } from '@/app/components/ui/card'
 import { Input } from '@/app/components/ui/input'
 import { Button } from '@/app/components/ui/button'
 import { toast } from 'sonner'
@@ -46,18 +46,15 @@ export default function CreateReferralPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Referral Code</h1>
-        <p className="text-gray-600">Generate a new influencer referral code</p>
+        <h1 className="text-2xl font-bold text-[var(--color-text-primary)] mb-1">Create Referral Code</h1>
+        <p className="text-sm text-[var(--color-text-muted)]">Generate a new influencer referral code</p>
       </div>
 
-      <Card className="max-w-2xl">
-        <CardHeader>
-          <CardTitle>New Referral Code</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="border border-[var(--color-border)] max-w-2xl">
+        <CardContent className="p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium text-[var(--color-text-primary)] mb-1.5 block">
                 Influencer Email
               </label>
               <Input
@@ -69,13 +66,13 @@ export default function CreateReferralPage() {
                 }
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
                 Must be an existing user account
               </p>
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">
+              <label className="text-sm font-medium text-[var(--color-text-primary)] mb-1.5 block">
                 Referral Code
               </label>
               <Input
@@ -87,14 +84,14 @@ export default function CreateReferralPage() {
                 }
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">
                 Should be unique and memorable
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className="text-sm font-medium text-[var(--color-text-primary)] mb-1.5 block">
                   Discount Percent
                 </label>
                 <Input
@@ -110,13 +107,13 @@ export default function CreateReferralPage() {
                   }
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   % discount for users
                 </p>
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">
+                <label className="text-sm font-medium text-[var(--color-text-primary)] mb-1.5 block">
                   Commission Percent
                 </label>
                 <Input
@@ -132,18 +129,18 @@ export default function CreateReferralPage() {
                   }
                   required
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--color-text-muted)] mt-1">
                   % commission for influencer
                 </p>
               </div>
             </div>
 
-            <div className="bg-gray-50 p-4 rounded-md">
-              <h4 className="font-medium mb-2">Example:</h4>
-              <p className="text-sm text-gray-600">
+            <div className="bg-[var(--color-bg)] border border-[var(--color-border)] p-4">
+              <h4 className="font-medium text-[var(--color-text-primary)] mb-2">Example:</h4>
+              <p className="text-sm text-[var(--color-text-secondary)]">
                 If a user buys ₦10,000 worth of services with this code:
               </p>
-              <ul className="text-sm text-gray-600 mt-2 space-y-1">
+              <ul className="text-sm text-[var(--color-text-secondary)] mt-2 space-y-1">
                 <li>• User pays: ₦{(10000 * (100 - formData.discountPercent) / 100).toLocaleString()} (after {formData.discountPercent}% discount)</li>
                 <li>• Influencer earns: ₦{(10000 * (100 - formData.discountPercent) / 100 * formData.commissionPercent / 100).toLocaleString()} ({formData.commissionPercent}% commission)</li>
               </ul>

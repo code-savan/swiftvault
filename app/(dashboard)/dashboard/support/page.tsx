@@ -1,152 +1,132 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useI18n } from '@/app/contexts/I18nContext'
 import { Card, CardContent } from '@/app/components/ui/card'
 import { Button } from '@/app/components/ui/button'
-import { Input } from '@/app/components/ui/input'
-import { Sidebar } from '@/app/components/Sidebar'
-import { logout } from '@/app/actions/auth'
 import {
-  Bell, Menu, MessageCircle, Mail, Phone, FileText,
-  ChevronRight, ExternalLink, HelpCircle
+  MessageCircle, Mail, FileText, HelpCircle, ExternalLink, ChevronDown
 } from 'lucide-react'
+import { toast } from 'sonner'
+
+const SUPPORT_EMAIL = 'support@swiftvault.com'
+const DOCS_URL = 'https://docs.swiftvault.com'
+
+const faqItems = [
+  { q: 'How do I purchase OTP numbers?', a: 'Navigate to OTP Numbers from the sidebar, select your country and service, then click "Get Number". The cost will be deducted from your wallet balance.' },
+  { q: 'How do I add funds to my wallet?', a: 'Go to Wallet from the sidebar, click "Add Funds", choose an amount and payment method (Card or Bank Transfer). Funds are credited instantly via card or within 1-5 minutes for bank transfers.' },
+  { q: 'What are referral codes and how do they work?', a: 'Referral codes give you discounts on services and earn the referrer a commission. You can find your referral code in the Referral section. Share it with friends to earn bonuses.' },
+  { q: 'How do I contact support?', a: 'You can reach us via email at support@swiftvault.com or use the live chat feature. Our support team typically responds within 24 hours.' },
+]
 
 export default function SupportPage() {
-  const router = useRouter()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-
-  const handleLogout = async () => {
-    await logout()
-    router.push('/login')
-    router.refresh()
-  }
-
-  const faqItems = [
-    { q: 'How do I fund my wallet?', a: 'Click the "Fund Wallet" button and follow the Paystack payment process.' },
-    { q: 'What happens if I don\'t receive my OTP?', a: 'If no SMS is received within the time limit, your funds are automatically refunded.' },
-    { q: 'How long do virtual numbers stay active?', a: 'OTP numbers stay active for 10-20 minutes. Echo numbers are active for 30 days.' },
-    { q: 'Can I get a refund?', a: 'Yes, automatic refunds for failed OTP deliveries. Contact support for other issues.' },
-  ]
+  const { t } = useI18n()
+  const [openFaq, setOpenFaq] = useState<number | null>(null)
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <Sidebar
-        user={{ email: 'user@example.com' }}
-        onLogout={handleLogout}
-        isOpen={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-      />
-
-      <div className="flex-1">
-        <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
-          <div className="px-4 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden p-2 hover:bg-gray-100 rounded-xl"
-                >
-                  <Menu className="w-5 h-5 text-gray-600" />
-                </button>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Support</h1>
-                  <p className="text-xs text-gray-500">Get help when you need it</p>
-                </div>
-              </div>
-              <button className="relative p-2.5 hover:bg-gray-100 rounded-xl">
-                <Bell className="w-5 h-5 text-gray-600" />
-              </button>
+    <div className="space-y-8">
+      {/* Contact Cards */}
+      <div className="grid md:grid-cols-3 gap-4">
+        <Card className="border border-[var(--color-border)] hover:shadow-md transition-all">
+          <CardContent className="p-6 text-center">
+            <div className="w-14 h-14 rounded-xl bg-[var(--color-accent-light)] flex items-center justify-center mx-auto mb-4">
+              <MessageCircle className="w-7 h-7 text-[var(--color-accent)]" />
             </div>
-          </div>
-        </header>
+            <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">{t('support.liveChat')}</h3>
+            <p className="text-xs text-[var(--color-text-muted)] mb-4">{t('support.liveChatDesc')}</p>
+            <Button
+              className="w-full"
+              onClick={() => toast.info('Live chat coming soon. Email us at ' + SUPPORT_EMAIL)}
+            >
+              {t('common.startChat')}
+            </Button>
+          </CardContent>
+        </Card>
 
-        <main className="p-4 lg:p-8 max-w-4xl">
-          {/* Contact Options */}
-          <div className="grid md:grid-cols-3 gap-4 mb-8">
-            <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <MessageCircle className="w-7 h-7 text-green-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Live Chat</h3>
-                <p className="text-xs text-gray-500 mb-4">Chat with our support team</p>
-                <Button className="w-full bg-green-600 hover:bg-green-700">
-                  Start Chat
-                </Button>
-              </CardContent>
-            </Card>
+        <Card className="border border-[var(--color-border)] hover:shadow-md transition-all">
+          <CardContent className="p-6 text-center">
+            <div className="w-14 h-14 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-4">
+              <Mail className="w-7 h-7 text-blue-600" />
+            </div>
+            <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">{t('support.emailSupport')}</h3>
+            <p className="text-xs text-[var(--color-text-muted)] mb-4">{t('support.emailSupportDesc')}</p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => window.open(`mailto:${SUPPORT_EMAIL}`, '_blank')}
+            >
+              {t('common.sendEmail')}
+            </Button>
+          </CardContent>
+        </Card>
 
-            <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Mail className="w-7 h-7 text-blue-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Email Support</h3>
-                <p className="text-xs text-gray-500 mb-4">We reply within 24 hours</p>
-                <Button variant="outline" className="w-full">
-                  Send Email
-                </Button>
-              </CardContent>
-            </Card>
-
-            <Card className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <FileText className="w-7 h-7 text-purple-600" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Documentation</h3>
-                <p className="text-xs text-gray-500 mb-4">Read our guides & FAQs</p>
-                <Button variant="outline" className="w-full">
-                  View Docs
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* FAQ Section */}
-          <div className="mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Frequently Asked Questions</h2>
-            <Card className="border-0 shadow-sm">
-              <CardContent className="p-0 divide-y divide-gray-100">
-                {faqItems.map((faq, idx) => (
-                  <div key={idx} className="p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <HelpCircle className="w-4 h-4 text-gray-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900 mb-1">{faq.q}</p>
-                        <p className="text-xs text-gray-500">{faq.a}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Contact Info */}
-          <Card className="border-0 shadow-sm bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-            <CardContent className="p-6">
-              <h3 className="font-semibold mb-4">Still need help?</h3>
-              <p className="text-gray-300 text-sm mb-4">
-                Our support team is available 24/7 to assist you with any questions or issues.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-gray-400" />
-                  <span>support@swiftvault.com</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-gray-400" />
-                  <span>+234 800 000 0000</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </main>
+        <Card className="border border-[var(--color-border)] hover:shadow-md transition-all">
+          <CardContent className="p-6 text-center">
+            <div className="w-14 h-14 rounded-xl bg-purple-50 flex items-center justify-center mx-auto mb-4">
+              <FileText className="w-7 h-7 text-purple-600" />
+            </div>
+            <h3 className="font-semibold text-[var(--color-text-primary)] mb-1">{t('support.documentation')}</h3>
+            <p className="text-xs text-[var(--color-text-muted)] mb-4">{t('support.documentationDesc')}</p>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => window.open(DOCS_URL, '_blank', 'noopener')}
+            >
+              <ExternalLink className="w-4 h-4 mr-1" />
+              {t('common.viewDocs')}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* FAQ */}
+      <div>
+        <h2 className="text-lg font-semibold text-[var(--color-text-primary)] mb-4">{t('support.faq')}</h2>
+        <Card className="border border-[var(--color-border)]">
+          <CardContent className="p-0 divide-y divide-[var(--color-border)]">
+            {faqItems.map((faq, idx) => (
+              <div key={idx}>
+                <button
+                  onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
+                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--color-bg)] transition-colors"
+                >
+                  <div className="w-8 h-8 rounded-lg bg-[var(--color-bg)] border border-[var(--color-border)] flex items-center justify-center flex-shrink-0">
+                    <HelpCircle className="w-4 h-4 text-[var(--color-text-secondary)]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-[var(--color-text-primary)]">{faq.q}</p>
+                  </div>
+                  <ChevronDown className={`w-4 h-4 text-[var(--color-text-muted)] flex-shrink-0 transition-transform ${openFaq === idx ? 'rotate-180' : ''}`} />
+                </button>
+                {openFaq === idx && (
+                  <div className="px-4 pb-4 pl-[3.25rem]">
+                    <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">{faq.a}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Still Need Help */}
+      <Card className="border border-[var(--color-border)] bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+        <CardContent className="p-6">
+          <h3 className="font-semibold mb-4">{t('support.stillNeedHelp')}</h3>
+          <p className="text-gray-300 text-sm mb-4">
+            {t('support.stillNeedHelpDesc')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors"
+            >
+              <Mail className="w-4 h-4 text-gray-400" />
+              <span>{SUPPORT_EMAIL}</span>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

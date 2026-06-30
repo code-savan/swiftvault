@@ -3,22 +3,22 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/app/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent)] focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
-        default: "bg-green-600 text-white hover:bg-green-700",
-        destructive: "bg-red-600 text-white hover:bg-red-700",
-        outline: "border border-gray-300 bg-white hover:bg-gray-50",
+        default: "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]",
+        destructive: "bg-[var(--color-danger)] text-white hover:bg-red-700",
+        outline: "border border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-primary)] hover:bg-[var(--color-surface-hover)]",
         secondary: "bg-gray-200 text-gray-900 hover:bg-gray-300",
-        ghost: "hover:bg-gray-100",
-        link: "text-green-600 underline-offset-4 hover:underline",
+        ghost: "hover:bg-[var(--color-surface-hover)] text-[var(--color-text-secondary)]",
+        link: "text-[var(--color-accent)] underline-offset-4 hover:underline",
       },
       size: {
         default: "h-10 px-4 py-2",
-        sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
-        icon: "h-10 w-10",
+        sm: "h-9 rounded-lg px-3",
+        lg: "h-11 rounded-lg px-8",
+        icon: "h-9 w-9",
       },
     },
     defaultVariants: {

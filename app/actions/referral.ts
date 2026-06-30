@@ -1,9 +1,9 @@
 'use server'
 
-import { createClient } from '@/app/lib/supabase/server'
+import { requireAuth, getDataClient } from '@/app/lib/clerk/server'
 
 export async function validateReferralCode(code: string) {
-  const supabase = await createClient()
+  const supabase = getDataClient()
 
   const { data, error } = await supabase
     .from('referral_codes')
@@ -31,7 +31,7 @@ export async function applyReferralCommission(
   amount: number,
   referralCodeId: string
 ) {
-  const supabase = await createClient()
+  const supabase = getDataClient()
 
   // Get influencer current balance
   const { data: userData } = await supabase

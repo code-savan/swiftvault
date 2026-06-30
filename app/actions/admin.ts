@@ -1,17 +1,17 @@
 'use server'
 
-import { createClient, createAdminClient } from '@/app/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAuth, getDataClient } from '@/app/lib/clerk/server'
+import { auth } from '@clerk/nextjs/server'
 
 export async function isAdmin() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) return false
-
-  // Check against environment variable
-  const adminUserId = process.env.ADMIN_USER_ID
-  return user.id === adminUserId
+  try {
+    const { userId } = await auth()
+    const adminUserId = process.env.ADMIN_USER_ID
+    return userId === adminUserId
+  } catch {
+    return false
+  }
 }
 
 export async function getAdminStats() {
@@ -20,7 +20,7 @@ export async function getAdminStats() {
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   // Get total revenue
   const { data: revenueData } = await supabase
@@ -76,7 +76,7 @@ export async function getInfluencers() {
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   const { data: codes } = await supabase
     .from('referral_codes')
@@ -124,7 +124,7 @@ export async function getAllTransactions(limit: number = 50) {
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   const { data } = await supabase
     .from('transactions')
@@ -144,7 +144,7 @@ export async function getAllUsers(limit: number = 50) {
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   const { data } = await supabase
     .from('users')
@@ -161,7 +161,7 @@ export async function getAllEchoNumbers() {
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   const { data } = await supabase
     .from('echo_numbers')
@@ -185,7 +185,7 @@ export async function createReferralCode(
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   // Get influencer by email
   const { data: userData } = await supabase
@@ -225,7 +225,7 @@ export async function manualTopup(userEmail: string, amount: number, description
     throw new Error('Unauthorized')
   }
 
-  const supabase = await createAdminClient()
+  const supabase = getDataClient()
 
   // Get user by email
   const { data: userData } = await supabase

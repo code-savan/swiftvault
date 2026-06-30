@@ -1,37 +1,29 @@
 'use server'
 
-import { createClient } from '@/app/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { requireAuth, getDataClient } from '@/app/lib/clerk/server'
 
 export async function getWalletBalance() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { balance: 0 }
-  }
+  const userId = await requireAuth()
+  const supabase = getDataClient()
 
   const { data } = await supabase
     .from('users')
     .select('wallet_balance')
-    .eq('id', user.id)
+    .eq('id', userId)
     .single()
 
   return { balance: data?.wallet_balance || 0 }
 }
 
 export async function getTransactions(limit: number = 10) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { transactions: [] }
-  }
+  const userId = await requireAuth()
+  const supabase = getDataClient()
 
   const { data, error } = await supabase
     .from('transactions')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('user_id', userId)
     .order('created_at', { ascending: false })
     .limit(limit)
 
@@ -44,39 +36,27 @@ export async function getTransactions(limit: number = 10) {
 }
 
 export async function creditWallet(userId: string, amount: number, description: string, reference?: string) {
-  const supabase = await createClient()
+  const supabase = getDataClient()
 
-  // Get current balance
-  const { data: userData } = await supabase
-    .from('users')
-    .select('wallet_balance')
-    .eq('id', userId)
-    .single()
+  const { data, error } = await supabase.rpc('credit_wallet', {
+    p_user_id: userId,
+    p_amount: amount,
+    p_description: description,
+    p_reference: reference || null,
+  })
 
-  const currentBalance = userData?.wallet_balance || 0
-  const newBalance = currentBalance + amount
+  if (error) {
+    console.error('creditWallet RPC failed:', error)
+    return { success: false, error: error.message }
+  }
 
-  // Update balance
-  await supabase
-    .from('users')
-    .update({ wallet_balance: newBalance })
-    .eq('id', userId)
-
-  // Create transaction record
-  await supabase
-    .from('transactions')
-    .insert({
-      user_id: userId,
-      amount,
-      type: 'topup',
-      description,
-      status: 'completed',
-      paystack_reference: reference,
-    })
+  const result = data as unknown as { success: boolean; new_balance?: number; error?: string }
+  if (!result.success) {
+    return { success: false, error: result.error || 'Failed to credit wallet' }
+  }
 
   revalidatePath('/dashboard')
-
-  return { success: true, newBalance }
+  return { success: true, newBalance: result.new_balance }
 }
 
 export async function deductWallet(
@@ -85,42 +65,25 @@ export async function deductWallet(
   description: string,
   referralCodeId?: string
 ) {
-  const supabase = await createClient()
+  const supabase = getDataClient()
 
-  // Get current balance
-  const { data: userData } = await supabase
-    .from('users')
-    .select('wallet_balance')
-    .eq('id', userId)
-    .single()
+  const { data, error } = await supabase.rpc('deduct_wallet', {
+    p_user_id: userId,
+    p_amount: amount,
+    p_description: description,
+    p_referral_code_id: referralCodeId || null,
+  })
 
-  const currentBalance = userData?.wallet_balance || 0
-
-  if (currentBalance < amount) {
-    return { success: false, error: 'Insufficient balance' }
+  if (error) {
+    console.error('deductWallet RPC failed:', error)
+    return { success: false, error: error.message }
   }
 
-  const newBalance = currentBalance - amount
-
-  // Update balance
-  await supabase
-    .from('users')
-    .update({ wallet_balance: newBalance })
-    .eq('id', userId)
-
-  // Create transaction record
-  await supabase
-    .from('transactions')
-    .insert({
-      user_id: userId,
-      amount: -amount,
-      type: 'purchase',
-      description,
-      status: 'completed',
-      referral_code_id: referralCodeId,
-    })
+  const result = data as unknown as { success: boolean; new_balance?: number; error?: string }
+  if (!result.success) {
+    return { success: false, error: result.error || 'Failed to deduct wallet' }
+  }
 
   revalidatePath('/dashboard')
-
-  return { success: true, newBalance }
+  return { success: true, newBalance: result.new_balance }
 }

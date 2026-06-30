@@ -1,27 +1,26 @@
-import { createClient } from '@/app/lib/supabase/server'
-import { redirect } from 'next/navigation'
+'use client'
+
+import { useAuth, useUser } from '@clerk/nextjs'
+import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import AdminLayoutClient from './AdminLayoutClient'
 
-export default async function AdminLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn } = useAuth()
+  const { user } = useUser()
+  const router = useRouter()
 
-  if (!user) {
-    redirect('/login')
-  }
+  useEffect(() => {
+    if (!isLoaded) return
+    if (!isSignedIn) {
+      router.replace('/login')
+    }
+  }, [isLoaded, isSignedIn, router])
 
-  // Check if user is admin
-  const adminUserId = process.env.ADMIN_USER_ID
-  if (user.id !== adminUserId) {
-    redirect('/dashboard')
-  }
+  if (!isLoaded || !isSignedIn) return null
 
   return (
-    <AdminLayoutClient userEmail={user.email!}>
+    <AdminLayoutClient userEmail={user?.primaryEmailAddress?.emailAddress ?? ''}>
       {children}
     </AdminLayoutClient>
   )

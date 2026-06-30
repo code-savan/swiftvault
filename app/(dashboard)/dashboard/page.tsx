@@ -1,34 +1,39 @@
-import { createClient } from '@/app/lib/supabase/server'
+import { auth } from '@clerk/nextjs/server'
 import { redirect } from 'next/navigation'
+import { getOrCreateUser } from '@/app/actions/auth'
+import { getUserStats, getUserTransactions } from '@/app/actions/dashboard'
 import DashboardClient from './DashboardClient'
-import { getEchoNumbers } from '@/app/actions/otp'
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { userId } = await auth()
+  if (!userId) redirect('/login')
 
-  if (!user) {
+  let userData
+  try {
+    userData = await getOrCreateUser()
+  } catch (error) {
+    console.error('Failed to load user:', error)
     redirect('/login')
   }
 
-  // Get user data
-  const { data: userData } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', user.id)
-    .single()
+  if (!userData) redirect('/login')
 
-  // Get echo numbers
-  const { numbers: echoNumbers } = await getEchoNumbers()
+  const [stats, transactions] = await Promise.all([
+    getUserStats(),
+    getUserTransactions(5),
+  ])
 
   return (
     <DashboardClient
       user={{
-        id: user.id,
-        email: user.email!,
-        wallet_balance: userData?.wallet_balance || 0,
+        id: userData.id,
+        email: userData.email,
+        wallet_balance: userData.wallet_balance || 0,
+        totalSpent: stats?.totalSpent ?? 0,
+        activeServices: stats?.activeServices ?? 0,
+        avatar_url: userData.avatar_url || null,
       }}
-      initialEchoNumbers={echoNumbers}
+      transactions={transactions}
     />
   )
 }

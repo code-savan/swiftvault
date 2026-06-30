@@ -1,27 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/app/lib/supabase/server'
+import { currentUserId } from '@/app/lib/clerk/server'
+import { createDataClient } from '@/app/lib/supabase/data'
 import { provisionTwilioNumber, getEchoCost } from '@/app/lib/twilio'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
-
-    if (!user) {
+    const userId = await currentUserId()
+    if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const supabase = createDataClient()
     const body = await request.json()
     const { country } = body
 
-    // Calculate cost
     const monthlyCost = getEchoCost(country)
 
-    // Check wallet balance
     const { data: userData } = await supabase
       .from('users')
       .select('wallet_balance')
-      .eq('id', user.id)
+      .eq('id', userId)
       .single()
 
     const balance = userData?.wallet_balance || 0
@@ -30,30 +28,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient wallet balance' }, { status: 400 })
     }
 
-    // Provision Twilio number
-    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/twilio/webhook`
-    const twilioNumber = await provisionTwilioNumber({
-      country,
-      smsUrl: webhookUrl,
-    })
+    const twilioResult = await provisionTwilioNumber(country) as any
 
-    // Deduct from wallet
-    const newBalance = balance - monthlyCost
-    await supabase
-      .from('users')
-      .update({ wallet_balance: newBalance })
-      .eq('id', user.id)
+    if (!twilioResult.success) {
+      return NextResponse.json({ error: twilioResult.error || 'Failed to provision number' }, { status: 500 })
+    }
 
-    // Create Echo number record
     const expiryDate = new Date()
-    expiryDate.setDate(expiryDate.getDate() + 30) // 30 days from now
+    expiryDate.setDate(expiryDate.getDate() + 30)
 
     const { data: echoNumber } = await supabase
       .from('echo_numbers')
       .insert({
-        user_id: user.id,
-        twilio_sid: twilioNumber.sid,
-        phone_number: twilioNumber.phoneNumber,
+        user_id: userId,
+        twilio_sid: twilioResult.sid!,
+        phone_number: twilioResult.phoneNumber!,
         country,
         expiry_date: expiryDate.toISOString(),
         active: true,
@@ -62,14 +51,19 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    // Create transaction
+    const newBalance = balance - monthlyCost
+    await supabase
+      .from('users')
+      .update({ wallet_balance: newBalance })
+      .eq('id', userId)
+
     await supabase
       .from('transactions')
       .insert({
-        user_id: user.id,
+        user_id: userId,
         amount: -monthlyCost,
         type: 'purchase',
-        description: `Echo number: ${twilioNumber.phoneNumber}`,
+        description: `Echo number: ${twilioResult.phoneNumber}`,
         status: 'completed',
       })
 
@@ -78,10 +72,7 @@ export async function POST(request: NextRequest) {
       number: echoNumber,
     })
   } catch (error: any) {
-    console.error('Echo upgrade error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Failed to upgrade to Echo' },
-      { status: 500 }
-    )
+    console.error('Echo number provision error:', error)
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
