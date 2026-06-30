@@ -12,15 +12,6 @@ const metrics = [
   { icon: BarChart3, value: "50K+", label: "monthly active users", sublabel: "target engagement base" },
 ]
 
-const revenueModels = [
-  { name: "OTP Verification", arr: "₦50M", type: "Transactional", width: "18%", color: "bg-emerald-500" },
-  { name: "AI Access Vault", arr: "₦240M", type: "Recurring", width: "54%", color: "bg-violet-500" },
-  { name: "Virtual Dollar Cards", arr: "₦432M", type: "Recurring + FX", width: "88%", color: "bg-cyan-500" },
-  { name: "Digital Residency", arr: "₦270M", type: "Recurring", width: "60%", color: "bg-blue-500" },
-  { name: "Creator Toolkit", arr: "₦288M", type: "Recurring", width: "64%", color: "bg-rose-500" },
-  { name: "Developer API", arr: "₦150M", type: "Transactional", width: "38%", color: "bg-slate-700" },
-]
-
 export function MetricsSection() {
   return (
     <section className="overflow-hidden bg-[#f7f8f4] py-24 sm:py-28">
@@ -68,48 +59,7 @@ export function MetricsSection() {
           })}
         </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="mt-12 rounded-[2rem] border border-black/[0.06] bg-white p-5 shadow-sm lg:p-7"
-        >
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">Revenue breakdown</p>
-              <h3 className="text-2xl font-bold tracking-tight text-slate-950">Seven models, one vault balance</h3>
-            </div>
-            <div className="rounded-2xl bg-[#07130f] px-5 py-3 text-white">
-              <p className="text-[11px] uppercase tracking-[0.18em] text-white/40">Total target</p>
-              <p className="text-xl font-black text-[#b7ff6a]">₦1.43B ARR</p>
-            </div>
-          </div>
 
-          <div className="space-y-4">
-            {revenueModels.map((model, index) => (
-              <motion.div
-                key={model.name}
-                initial={{ opacity: 0, x: -12 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-20px" }}
-                transition={{ duration: 0.32, delay: index * 0.04 }}
-                className="grid gap-3 sm:grid-cols-[190px_1fr_120px]"
-              >
-                <div className="min-w-0">
-                  <p className="truncate text-sm font-bold text-slate-900">{model.name}</p>
-                  <p className="text-[11px] text-slate-400">{model.type}</p>
-                </div>
-                <div className="flex items-center">
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
-                    <div className={`h-full rounded-full ${model.color}`} style={{ width: model.width }} />
-                  </div>
-                </div>
-                <p className="text-left text-sm font-black text-slate-950 sm:text-right">{model.arr}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   )

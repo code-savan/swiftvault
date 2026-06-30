@@ -7,7 +7,6 @@ import { MetricsSection } from '@/app/components/blocks/metrics-section'
 import { FeaturesSection } from '@/app/components/blocks/features-section'
 import { MoatSection } from '@/app/components/blocks/moat-section'
 import { TestimonialsSection } from '@/app/components/blocks/testimonials-section'
-import { RoadmapSection } from '@/app/components/blocks/roadmap-section'
 import { PricingSection } from '@/app/components/blocks/pricing-section'
 import { FaqSection } from '@/app/components/blocks/faq-section'
 import { CtaSection } from '@/app/components/blocks/cta-section'
@@ -29,7 +28,6 @@ export default async function LandingPage() {
       <FeaturesSection />
       <MoatSection />
       <TestimonialsSection />
-      <RoadmapSection />
       <PricingSection />
       <FaqSection />
       <CtaSection />
