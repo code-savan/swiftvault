@@ -14,7 +14,7 @@ const phases = [
     icon: Zap,
     period: "Month 2-4",
     title: "AI Vault launch",
-    items: ["AI access bundle", "SwiftVault Pro", "Referral visibility", "SEO service pages"],
+    items: ["AI access bundle", "SwiftVult Pro", "Referral visibility", "SEO service pages"],
   },
   {
     icon: CreditCard,
@@ -52,7 +52,7 @@ export function RoadmapSection() {
             From OTP MVP to digital access ecosystem.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500">
-            Each phase compounds the wallet: more services, better retention, richer data, and stronger reasons to keep SwiftVault open.
+            Each phase compounds the wallet: more services, better retention, richer data, and stronger reasons to keep SwiftVult open.
           </p>
         </motion.div>
 

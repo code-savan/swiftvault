@@ -42,7 +42,7 @@ export default function ReferralPage() {
   function handleShare(code: string) {
     const url = `${data?.shareLink || ''}${code}`
     if (navigator.share) {
-      navigator.share({ title: 'Join SwiftVault', text: `Use my referral code ${code} to get a discount!`, url })
+      navigator.share({ title: 'Join SwiftVult', text: `Use my referral code ${code} to get a discount!`, url })
     } else {
       handleCopy(url)
     }

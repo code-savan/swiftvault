@@ -22,7 +22,7 @@ export function Navbar({ user, onLogout }: NavbarProps) {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/dashboard" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-green-600">SwiftVault</span>
+              <span className="text-2xl font-bold text-green-600">SwiftVult</span>
             </Link>
             {isAdmin && (
               <div className="ml-10 flex items-baseline space-x-4">

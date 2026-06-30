@@ -29,7 +29,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="w-8 h-8 bg-[var(--color-accent)] rounded-lg flex items-center justify-center shadow-sm">
               <Zap className="w-4 h-4 text-white" />
             </div>
-            <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVault</span>
+            <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVult</span>
           </Link>
         </div>
 

@@ -6,12 +6,12 @@ import { Minus, Plus } from "lucide-react"
 
 const faqs = [
   {
-    q: "What is SwiftVault?",
-    a: "SwiftVault is an all-in-one digital access wallet for Nigerians. Fund in Naira, then use that balance for OTP verification, Echo Numbers, AI access, cards, and future vault services.",
+    q: "What is SwiftVult?",
+    a: "SwiftVult is an all-in-one digital access wallet for Nigerians. Fund in Naira, then use that balance for OTP verification, Echo Numbers, AI access, cards, and future vault services.",
   },
   {
     q: "Do I need an international card?",
-    a: "No. That is the blocker SwiftVault removes. Payments run through local Naira funding, with services billed from your vault balance.",
+    a: "No. That is the blocker SwiftVult removes. Payments run through local Naira funding, with services billed from your vault balance.",
   },
   {
     q: "How do I fund my wallet?",
@@ -22,7 +22,7 @@ const faqs = [
     a: "An Echo Number is a persistent US or UK number you can keep for longer-running accounts. It is different from a disposable OTP number.",
   },
   {
-    q: "Is SwiftVault safe?",
+    q: "Is SwiftVult safe?",
     a: "The app uses Clerk for auth, Supabase/Postgres for data, and Paystack for payments. Sensitive operations should stay server-side as the product moves toward production.",
   },
   {
@@ -47,7 +47,7 @@ export function FaqSection() {
             The practical details before you open a vault.
           </h2>
           <p className="mt-5 max-w-lg text-sm leading-7 text-slate-500">
-            Clear answers on funding, numbers, safety, and what makes SwiftVault different from one-off OTP sellers.
+            Clear answers on funding, numbers, safety, and what makes SwiftVult different from one-off OTP sellers.
           </p>
         </motion.div>
 

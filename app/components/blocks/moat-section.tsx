@@ -7,7 +7,7 @@ const moats = [
   {
     icon: Shield,
     title: "Naira-native pricing",
-    desc: "Users fund with bank transfer, USSD, or card. SwiftVault removes the dollar-card blocker from global digital services.",
+    desc: "Users fund with bank transfer, USSD, or card. SwiftVult removes the dollar-card blocker from global digital services.",
   },
   {
     icon: Wallet,
@@ -42,7 +42,7 @@ export function MoatSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">Why SwiftVault wins</p>
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.22em] text-emerald-700">Why SwiftVult wins</p>
             <h2 className="text-4xl font-bold tracking-tight text-slate-950 sm:text-5xl">
               Built around the pain competitors keep treating as an edge case.
             </h2>

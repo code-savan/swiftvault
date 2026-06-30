@@ -3,12 +3,12 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import { ClerkProvider } from "@clerk/nextjs";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://swiftvault.vercel.app'
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://swiftvult.com'
 
 export const metadata: Metadata = {
   title: {
-    default: "SwiftVault — Nigeria's Digital Vault | OTP, AI, Virtual Cards & More",
-    template: "%s | SwiftVault",
+    default: "SwiftVult — Nigeria's Digital Vault | OTP, AI, Virtual Cards & More",
+    template: "%s | SwiftVult",
   },
   description:
     "Nigeria's all-in-one digital vault. Access OTP verification, AI models (ChatGPT, Claude, Midjourney), virtual dollar cards, US residency, creator tools, and developer APIs — all billed in Naira. No international card needed.",
@@ -21,18 +21,18 @@ export const metadata: Metadata = {
     "creator tools",
     "Naira payments",
     "virtual numbers",
-    "SwiftVault",
+    "SwiftVult",
   ],
   metadataBase: new URL(siteUrl),
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "SwiftVault — Nigeria's Digital Vault",
+    title: "SwiftVult — Nigeria's Digital Vault",
     description:
       "Access OTP verification, AI models, virtual dollar cards, US residency, creator tools, and developer APIs — all billed in Naira.",
     url: "/",
-    siteName: "SwiftVault",
+    siteName: "SwiftVult",
     type: "website",
     locale: "en_NG",
     images: [
@@ -40,13 +40,13 @@ export const metadata: Metadata = {
         url: "/link-preview.png",
         width: 1200,
         height: 630,
-        alt: "SwiftVault — Nigeria's Digital Vault",
+        alt: "SwiftVult — Nigeria's Digital Vault",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SwiftVault — Nigeria's Digital Vault",
+    title: "SwiftVult — Nigeria's Digital Vault",
     description:
       "Access OTP verification, AI models, virtual dollar cards, US residency, creator tools, and developer APIs — all billed in Naira.",
     images: ["/link-preview.png"],

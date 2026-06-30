@@ -28,7 +28,7 @@ export function MetricsSection() {
             Ambitious, measurable, and tied to wallet behavior.
           </h2>
           <p className="mx-auto mt-5 max-w-2xl text-sm leading-7 text-slate-500">
-            The landing page now frames SwiftVault as a business with real operating leverage: repeat use, wallet float, cross-sell, and recurring access products.
+            The landing page now frames SwiftVult as a business with real operating leverage: repeat use, wallet float, cross-sell, and recurring access products.
           </p>
         </motion.div>
 

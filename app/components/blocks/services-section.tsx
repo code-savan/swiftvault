@@ -136,7 +136,7 @@ export function ServicesSection() {
               </div>
               <div>
                 <p className="text-sm leading-7 text-slate-600">
-                  SwiftVault starts with OTP and Echo Numbers, then expands into AI, cards, residency, creator tools, and developer APIs. The connective tissue is simple: fund once in Naira, spend everywhere.
+                  SwiftVult starts with OTP and Echo Numbers, then expands into AI, cards, residency, creator tools, and developer APIs. The connective tissue is simple: fund once in Naira, spend everywhere.
                 </p>
                 <Link href="/register" className="mt-4 inline-flex items-center gap-2 text-sm font-bold text-slate-950">
                   Create a vault

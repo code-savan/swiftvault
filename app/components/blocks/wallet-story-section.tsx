@@ -29,7 +29,7 @@ const pillars = [
   {
     icon: BarChart3,
     title: "Build smarter",
-    desc: "Wallet spending patterns across categories reveal what users value, how they buy, and where SwiftVault should expand next.",
+    desc: "Wallet spending patterns across categories reveal what users value, how they buy, and where SwiftVult should expand next.",
     stat: "70%",
     statLabel: "recurring revenue target",
   },
@@ -53,7 +53,7 @@ export function WalletStorySection() {
               Every service gets stronger when it runs through one Naira balance.
             </h2>
             <p className="mt-5 max-w-xl text-sm leading-7 text-white/58">
-              SwiftVault is not a list of disconnected services. It is a wallet-led access layer: users fund once, discover what they need next, and build a durable digital life around the vault.
+              SwiftVult is not a list of disconnected services. It is a wallet-led access layer: users fund once, discover what they need next, and build a durable digital life around the vault.
             </p>
             <Link href="/register" className="mt-7 inline-flex items-center gap-2 rounded-xl bg-[#b7ff6a] px-5 py-3 text-sm font-bold text-[#07130f] transition hover:bg-[#d6ff9d]">
               Fund your free vault

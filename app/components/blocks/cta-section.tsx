@@ -27,7 +27,7 @@ export function CtaSection() {
             Open the vault Nigerians should have had years ago.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-white/58">
-            Fund in Naira, buy your first OTP number, and keep the same wallet ready for Echo Numbers, AI access, cards, and everything SwiftVault unlocks next.
+            Fund in Naira, buy your first OTP number, and keep the same wallet ready for Echo Numbers, AI access, cards, and everything SwiftVult unlocks next.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">

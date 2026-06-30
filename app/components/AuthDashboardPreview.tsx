@@ -28,7 +28,7 @@ function DesktopCard() {
             <Zap className="w-4 h-4 text-white" />
           </div>
           <div>
-            <p className="text-sm font-bold text-white">SwiftVault</p>
+            <p className="text-sm font-bold text-white">SwiftVult</p>
             <p className="text-[10px] text-white/40">Dashboard</p>
           </div>
         </div>
@@ -127,7 +127,7 @@ function PhoneCard() {
         <div className="w-5 h-5 rounded bg-[#16A34A] flex items-center justify-center">
           <Zap className="w-2.5 h-2.5 text-white" />
         </div>
-        <span className="text-[10px] font-bold text-white">SwiftVault</span>
+        <span className="text-[10px] font-bold text-white">SwiftVult</span>
       </div>
       <p className="text-[9px] text-white/40 mb-0.5">Balance</p>
       <p className="text-base font-black text-white mb-3">₦124,420</p>

@@ -18,7 +18,7 @@ const links: Record<string, { label: string; href: string }[]> = {
   ],
   Support: [
     { label: "Help Center", href: "#" },
-    { label: "Contact", href: "mailto:support@swiftvault.com" },
+    { label: "Contact", href: "mailto:support@swiftvult.com" },
     { label: "Privacy Policy", href: "#" },
     { label: "Terms of Service", href: "#" },
   ],
@@ -28,7 +28,7 @@ const socials = [
   { icon: Twitter, label: "Twitter", href: "#" },
   { icon: Github, label: "GitHub", href: "#" },
   { icon: Instagram, label: "Instagram", href: "#" },
-  { icon: Mail, label: "Email", href: "mailto:support@swiftvault.com" },
+  { icon: Mail, label: "Email", href: "mailto:support@swiftvult.com" },
 ]
 
 export function FooterSection() {
@@ -41,7 +41,7 @@ export function FooterSection() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#b7ff6a] text-[#07130f]">
                 <Shield className="h-5 w-5" />
               </div>
-              <span className="text-lg font-black tracking-tight">SwiftVault</span>
+              <span className="text-lg font-black tracking-tight">SwiftVult</span>
             </div>
             <p className="max-w-sm text-sm leading-7 text-white/42">
               Nigeria&apos;s all-in-one digital vault for OTP verification, Echo Numbers, AI access, cards, creator tools, and developer APIs.
@@ -79,7 +79,7 @@ export function FooterSection() {
         </div>
 
         <div className="mt-12 flex flex-col gap-3 border-t border-white/8 pt-6 text-xs text-white/28 sm:flex-row sm:items-center sm:justify-between">
-          <p>&copy; {new Date().getFullYear()} SwiftVault. All rights reserved.</p>
+          <p>&copy; {new Date().getFullYear()} SwiftVult. All rights reserved.</p>
           <p>
             Powered by <span className="text-[#b7ff6a]">Paystack</span>
             <span className="mx-1.5">&amp;</span>

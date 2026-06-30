@@ -9,14 +9,14 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 
-const SUPPORT_EMAIL = 'support@swiftvault.com'
-const DOCS_URL = 'https://docs.swiftvault.com'
+const SUPPORT_EMAIL = 'support@swiftvult.com'
+const DOCS_URL = 'https://docs.swiftvult.com'
 
 const faqItems = [
   { q: 'How do I purchase OTP numbers?', a: 'Navigate to OTP Numbers from the sidebar, select your country and service, then click "Get Number". The cost will be deducted from your wallet balance.' },
   { q: 'How do I add funds to my wallet?', a: 'Go to Wallet from the sidebar, click "Add Funds", choose an amount and payment method (Card or Bank Transfer). Funds are credited instantly via card or within 1-5 minutes for bank transfers.' },
   { q: 'What are referral codes and how do they work?', a: 'Referral codes give you discounts on services and earn the referrer a commission. You can find your referral code in the Referral section. Share it with friends to earn bonuses.' },
-  { q: 'How do I contact support?', a: 'You can reach us via email at support@swiftvault.com or use the live chat feature. Our support team typically responds within 24 hours.' },
+  { q: 'How do I contact support?', a: 'You can reach us via email at support@swiftvult.com or use the live chat feature. Our support team typically responds within 24 hours.' },
 ]
 
 export default function SupportPage() {

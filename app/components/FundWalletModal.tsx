@@ -131,7 +131,7 @@ export function FundWalletModal({ open, onOpenChange, userEmail, balance }: Fund
                 </div>
                 <div className="border-t border-[var(--color-border)] pt-3">
                   <span className="text-sm text-[var(--color-text-muted)]">Bank</span>
-                  <p className="font-semibold text-[var(--color-text-primary)]">SwiftVault Finance Bank</p>
+                  <p className="font-semibold text-[var(--color-text-primary)]">SwiftVult Finance Bank</p>
                 </div>
                 <div>
                   <span className="text-sm text-[var(--color-text-muted)]">Account Number</span>

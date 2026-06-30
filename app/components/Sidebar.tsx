@@ -119,7 +119,7 @@ export function Sidebar({ user, onLogout, isOpen, onClose }: SidebarProps) {
               <div className="w-8 h-8 bg-[var(--color-accent)] rounded-lg flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVault</span>
+              <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVult</span>
             </Link>
             <button onClick={onClose} className="lg:hidden p-1.5 hover:bg-[var(--color-surface-hover)] rounded-lg">
               <X className="w-4 h-4 text-[var(--color-text-muted)]" />

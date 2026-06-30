@@ -37,7 +37,7 @@ export async function getReferralDashboard(): Promise<ReferralDashboardData | nu
   const { userId } = await auth()
   if (!userId) return null
 
-  const shareLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://swiftvault.ng'}/register?ref=`
+  const shareLink = `${process.env.NEXT_PUBLIC_APP_URL || 'https://swiftvult.com'}/register?ref=`
 
   // Get referral codes owned by this user
   const { data: codes } = await supabase

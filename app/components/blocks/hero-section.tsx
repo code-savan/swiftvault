@@ -67,7 +67,7 @@ export function HeroSection() {
             <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#4ADE80] shadow-lg shadow-[#4ADE80]/20">
               <Zap className="h-4 w-4 text-[#0a1a12]" />
             </div>
-            <span className="text-sm font-bold tracking-tight">SwiftVault</span>
+            <span className="text-sm font-bold tracking-tight">SwiftVult</span>
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
@@ -167,7 +167,7 @@ export function HeroSection() {
                       <Zap className="h-4 w-4 text-[#4ADE80]" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold">SwiftVault</p>
+                      <p className="text-xs font-bold">SwiftVult</p>
                       <p className="text-[10px] text-black/40">Dashboard</p>
                     </div>
                   </div>

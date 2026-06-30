@@ -35,14 +35,14 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
     const dir = lang?.dir ?? 'ltr'
     document.documentElement.lang = code
     document.documentElement.dir = dir
-    const saved = localStorage.getItem('swiftvault-locale')
+    const saved = localStorage.getItem('swiftvult-locale')
     if (saved !== code) {
-      localStorage.setItem('swiftvault-locale', code)
+      localStorage.setItem('swiftvult-locale', code)
     }
   }, [])
 
   useEffect(() => {
-    const localLocale = localStorage.getItem('swiftvault-locale')
+    const localLocale = localStorage.getItem('swiftvult-locale')
     if (localLocale && languages.some((l) => l.code === localLocale)) {
       applyLocale(localLocale)
       setLocaleState(localLocale)

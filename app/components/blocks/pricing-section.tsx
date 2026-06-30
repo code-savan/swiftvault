@@ -55,7 +55,7 @@ export function PricingSection() {
             Transparent Naira pricing for every stage.
           </h2>
           <p className="mx-auto mt-5 max-w-xl text-sm leading-7 text-slate-500">
-            Start free, pay only when you need access, then upgrade when SwiftVault becomes part of your daily workflow.
+            Start free, pay only when you need access, then upgrade when SwiftVult becomes part of your daily workflow.
           </p>
         </motion.div>
 
@@ -101,7 +101,7 @@ export function PricingSection() {
                 ))}
               </ul>
 
-              <Link href={index === 3 ? "mailto:support@swiftvault.com" : "/register"} className="mt-7">
+              <Link href={index === 3 ? "mailto:support@swiftvult.com" : "/register"} className="mt-7">
                 <button
                   className={`w-full rounded-xl px-4 py-3 text-sm font-bold transition ${
                     plan.popular ? "bg-[#07130f] text-white hover:bg-[#10261e]" : "bg-slate-100 text-slate-950 hover:bg-slate-200"

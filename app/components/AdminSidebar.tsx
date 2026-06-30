@@ -102,7 +102,7 @@ export function AdminSidebar({ userEmail, onLogout, isOpen, onClose }: AdminSide
               <div className="w-8 h-8 bg-[var(--color-accent)] flex items-center justify-center">
                 <Zap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVault</span>
+              <span className="text-lg font-bold text-[var(--color-text-primary)] tracking-tight">SwiftVult</span>
               <span className="text-[10px] font-bold text-[var(--color-accent)] bg-[var(--color-accent-light)] px-1.5 py-0.5 uppercase tracking-wider">Admin</span>
             </Link>
             <button onClick={onClose} className="lg:hidden p-1.5 hover:bg-[var(--color-surface-hover)]">
